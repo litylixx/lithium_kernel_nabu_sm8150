@@ -2041,7 +2041,7 @@ static void change_pageblock_range(struct page *pageblock_page,
  * pageblocks.
  */
 static bool can_steal_fallback(unsigned int order, int start_mt, int fallback_type,
-                                                           unsigned int start_order)
+								unsigned int start_order)
 {
 	/*
 	 * Leaving this order check is intended, although there is
@@ -2053,7 +2053,7 @@ static bool can_steal_fallback(unsigned int order, int start_mt, int fallback_ty
 	if (order >= pageblock_order)
 		return true;
 
-        /* don't let unmovable allocations cause migrations simply because of free pages */
+	/* don't let unmovable allocations cause migrations simply because of free pages */
 	if ((start_mt != MIGRATE_UNMOVABLE && order >= pageblock_order / 2) ||
 	/* only steal reclaimable page blocks for unmovable allocations */
 	(start_mt == MIGRATE_UNMOVABLE && fallback_type != MIGRATE_MOVABLE && order >= pageblock_order / 2) ||
@@ -2062,7 +2062,7 @@ static bool can_steal_fallback(unsigned int order, int start_mt, int fallback_ty
 	/* allow unmovable allocs up to 64K without migrating blocks */
 	(start_mt == MIGRATE_UNMOVABLE && start_order >= 5) ||
 	page_group_by_mobility_disabled)
-	        return true;
+		return true;
 
 	return false;
 }
