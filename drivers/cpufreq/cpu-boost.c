@@ -322,28 +322,6 @@ static void cpuboost_input_event(struct input_handle *handle,
 	if (work_pending(&input_boost_work))
 		return;
 
-	if (type == EV_KEY && code == KEY_POWER) {
-		queue_work(cpu_boost_wq, &powerkey_input_boost_work);
-	} else {
-		queue_work(cpu_boost_wq, &input_boost_work);
-	}
-	last_input_time = ktime_to_us(ktime_get());
-}
-
-void touch_irq_boost(void)
-{
-	u64 now;
-
-	if (!input_boost_enabled)
-		return;
-
-	now = ktime_to_us(ktime_get());
-	if ((now - last_input_time) < (input_boost_ms * USEC_PER_MSEC))
-		return;
-
-	if (work_pending(&input_boost_work))
-		return;
-
 	queue_work(cpu_boost_wq, &input_boost_work);
 
 	last_input_time = ktime_to_us(ktime_get());
