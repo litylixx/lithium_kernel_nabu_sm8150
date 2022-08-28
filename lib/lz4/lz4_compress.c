@@ -859,7 +859,15 @@ int LZ4_saveDict(LZ4_stream_t *LZ4_dict, char *safeBuffer, int dictSize)
 	if ((U32)dictSize > dict->dictSize)
 		dictSize = dict->dictSize;
 
-	memmove(safeBuffer, previousDictEnd - dictSize, dictSize);
+	if (safeBuffer == NULL)
+		assert(dictSize == 0);
+	if (dictSize > 0) {
+		const BYTE *const previousDictEnd =
+			dict->dictionary + dict->dictSize;
+		assert(dict->dictionary);
+		LZ4_memmove(safeBuffer, previousDictEnd - dictSize,
+			    (size_t)dictSize);
+	}
 
 	dict->dictionary = (const BYTE *)safeBuffer;
 	dict->dictSize = (U32)dictSize;
