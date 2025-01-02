@@ -5,6 +5,7 @@
  */
 #ifndef __EROFS_INTERNAL_H
 #define __EROFS_INTERNAL_H
+#define EROFS_SUPER_MAGIC_V1 0xE0F5E1F5
 
 #include <linux/fs.h>
 #include <linux/dcache.h>
