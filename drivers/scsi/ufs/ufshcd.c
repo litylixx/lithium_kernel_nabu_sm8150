@@ -8469,7 +8469,7 @@ static int ufs_get_device_desc(struct ufs_hba *hba,
 	int err;
 	u8 str_desc_buf[QUERY_DESC_MAX_SIZE + 1] = {0};
 	size_t buff_len;
-	u8 model_index, lun;
+	u8 model_index;
 	u8 *desc_buf;
 
 	buff_len = max_t(size_t, hba->desc_size.dev_desc,
@@ -10394,8 +10394,7 @@ static int ufshcd_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
     }
 
 	if ((req_dev_pwr_mode != hba->curr_dev_pwr_mode) &&
-	    ((ufshcd_is_runtime_pm(pm_op) && (!hba->auto_bkops_enabled)
-	       !ufshcd_is_runtime_pm(pm_op))) {
+    (ufshcd_is_runtime_pm(pm_op) && !hba->auto_bkops_enabled || !ufshcd_is_runtime_pm(pm_op))) {
 		/* ensure that bkops is disabled */
 		ufshcd_disable_auto_bkops(hba);
 		ret = ufshcd_set_dev_pwr_mode(hba, req_dev_pwr_mode);
