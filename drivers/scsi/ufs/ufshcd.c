@@ -3681,14 +3681,14 @@ static int ufshcd_comp_scsi_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
  *
  * Returns UPIU LUN id
  */
-/*static inline u8 ufshcd_scsi_to_upiu_lun(unsigned int scsi_lun)
+static inline u8 ufshcd_scsi_to_upiu_lun(unsigned int scsi_lun)
 {
 	if (scsi_is_wlun(scsi_lun))
 		return (scsi_lun & UFS_UPIU_MAX_UNIT_NUM_ID)
 			| UFS_UPIU_WLUN_ID;
 	else
 		return scsi_lun & UFS_UPIU_MAX_UNIT_NUM_ID;
-}*/
+}
 
 /**
  * ufshcd_upiu_wlun_to_scsi_wlun - maps UPIU W-LUN id to SCSI W-LUN ID
