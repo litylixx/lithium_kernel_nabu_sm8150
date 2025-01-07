@@ -27,6 +27,9 @@ struct sugov_tunables {
 	unsigned int		up_rate_limit_us;
 	unsigned int		down_rate_limit_us;
 	bool iowait_boost_enable;
+	unsigned int		hispeed_freq;
+	unsigned int		hispeed_load;
+	bool pl;
 };
 
 struct sugov_policy {
