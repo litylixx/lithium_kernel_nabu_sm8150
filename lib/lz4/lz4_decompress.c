@@ -329,23 +329,11 @@ read_variable_length(const BYTE **ip, const BYTE *lencheck, int loop_check,
  */
 static FORCE_INLINE int
 LZ4_decompress_generic(const char *const src, char *const dst, int srcSize,
-		       /*
-		 * If endOnInput == endOnInputSize,
-		 * this value is `dstCapacity`
-		 */
-		       int outputSize,
-		       /* endOnOutputSize, endOnInputSize */
-		       endCondition_directive endOnInput,
-		       /* full, partial */
-		       earlyEnd_directive partialDecoding,
-		       /* noDict, withPrefix64k, usingExtDict */
-		       dict_directive dict,
-		       /* always <= dst, == dst when no prefix */
-		       const BYTE *const lowPrefix,
-		       /* only if dict == usingExtDict */
-		       const BYTE *const dictStart,
-		       /* note : = 0 if noDict */
-		       const size_t dictSize)
+                       int outputSize, endCondition_directive endOnInput,
+                       earlyEnd_directive partialDecoding,
+                       dict_directive dict, const BYTE *const lowPrefix,
+                       const BYTE *const dictStart, size_t dictSize);
+
 {
 	if ((src == NULL) || (outputSize < 0)) {
 		return -1;
@@ -965,7 +953,7 @@ int LZ4_decompress_fast(const char *source, char *dest, int originalSize)
 {
     return LZ4_decompress_generic(source, dest, 0, originalSize,
                                 endOnOutputSize, decode_full_block,
-                                withPrefix64k, (BYTE *)dest - (64 * KB), NULL, 0, 0);
+                                withPrefix64k, (BYTE *)dest - (64 * KB), NULL, 0);
 }
 
 /* ===== Instantiate a few more decoding cases, used more than once. ===== */
@@ -976,7 +964,7 @@ int LZ4_decompress_safe_withPrefix64k(const char *source, char *dest,
 	return LZ4_decompress_generic(source, dest, compressedSize,
 				      maxOutputSize, endOnInputSize,
 				      decode_full_block, withPrefix64k,
-				      (BYTE *)dest - 64 * KB, NULL, 0);
+				      (BYTE *)dest - (64 * KB), NULL, 0);
 }
 
 static int LZ4_decompress_safe_withSmallPrefix(const char *source, char *dest,
