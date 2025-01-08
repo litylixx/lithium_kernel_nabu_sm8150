@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (C) 2010 - 2018 Novatek, Inc.
  * Copyright (C) 2021 XiaoMi, Inc.
  *
@@ -38,8 +38,6 @@
 #include <linux/earlysuspend.h>
 #endif
 
-
-
 #include "nt36xxx.h"
 #ifndef NVT_SAVE_TESTDATA_IN_FILE
 #include "nt36xxx_mp_ctrlram.h"
@@ -53,10 +51,28 @@
 #endif
 #endif
 
-
 #ifdef CONFIG_TOUCHSCREEN_XIAOMI_TOUCHFEATURE
 #include "../xiaomi/xiaomi_touch.h"
 #endif
+
+#ifndef PM_QOS_CPU_DMA_LATENCY
+#define PM_QOS_CPU_DMA_LATENCY 1
+#endif
+
+#ifndef PM_QOS_DEFAULT_VALUE
+#define PM_QOS_DEFAULT_VALUE -1
+#endif
+
+#ifndef PM_QOS_REQ_AFFINE_IRQ
+#define PM_QOS_REQ_AFFINE_IRQ 0
+#endif
+
+static inline int geni_spi_get_master_irq(struct spi_device *spi)
+{
+    return spi->irq;
+}
+
+static struct task_struct *touch_task;
 
 #if NVT_TOUCH_ESD_PROTECT
 static struct delayed_work nvt_esd_check_work;
@@ -1666,7 +1682,7 @@ static irqreturn_t nvt_ts_work_func(int irq, void *data)
 	pm_qos_update_request(&ts->pm_touch_req, 100);
 	pm_qos_update_request(&ts->pm_spi_req, 100);
 
-	static struct task_struct *touch_task = NULL;
+	touch_task = NULL;
 	struct sched_param par = { .sched_priority = MAX_RT_PRIO - 1};
 	if (touch_task == NULL) {
 		touch_task = current;

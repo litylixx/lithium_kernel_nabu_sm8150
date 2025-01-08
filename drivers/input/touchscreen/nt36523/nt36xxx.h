@@ -24,6 +24,8 @@
 #include <linux/of.h>
 #include <linux/spi/spi.h>
 #include <linux/uaccess.h>
+#include <linux/pm_qos.h>
+#include <linux/qos.h>
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
@@ -224,6 +226,8 @@ struct nvt_ts_data {
 	void *testdata;
 #endif
 	bool pen_gen2_force;
+    struct pm_qos_request pm_touch_req;
+    struct pm_qos_request pm_spi_req;
 };
 
 #if NVT_TOUCH_PROC
