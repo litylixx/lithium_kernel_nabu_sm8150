@@ -330,10 +330,23 @@ read_variable_length(const BYTE **ip, const BYTE *lencheck, int loop_check,
  */
 static FORCE_INLINE int
 LZ4_decompress_generic(const char *const src, char *const dst, int srcSize,
-                       int outputSize, endCondition_directive endOnInput,
-                       earlyEnd_directive partialDecoding,
-                       dict_directive dict, const BYTE *const lowPrefix,
-                       const BYTE *const dictStart, size_t dictSize)
+         /*
+		 * If endOnInput == endOnInputSize,
+		 * this value is `dstCapacity`
+		 */
+		       int outputSize,
+		       /* endOnOutputSize, endOnInputSize */
+		       endCondition_directive endOnInput,
+		       /* full, partial */
+		       earlyEnd_directive partialDecoding,
+		       /* noDict, withPrefix64k, usingExtDict */
+		       dict_directive dict,
+		       /* always <= dst, == dst when no prefix */
+		       const BYTE *const lowPrefix,
+		       /* only if dict == usingExtDict */
+		       const BYTE *const dictStart,
+		       /* note : = 0 if noDict */
+		       const size_t dictSize)
 {
 	if ((src == NULL) || (outputSize < 0)) {
 		return -1;
