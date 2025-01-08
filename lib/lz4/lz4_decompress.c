@@ -135,6 +135,153 @@ static FORCE_INLINE void LZ4_memcpy_using_offset(BYTE *dstPtr,
 }
 #endif
 
+/* variant for decompress_unsafe()
+ * does not know end of input
+ * presumes input is well formed
+ * note : will consume at least one byte */
+static size_t read_long_length_no_check(const BYTE **pp)
+{
+	size_t b, l = 0;
+	do {
+		b = **pp;
+		(*pp)++;
+		l += b;
+	} while (b == 255);
+	DEBUGLOG(6,
+		 "read_long_length_no_check: +length=%zu using %zu input bytes",
+		 l, l / 255 + 1)
+	return l;
+}
+
+/* core decoder variant for LZ4_decompress_fast*()
+ * for legacy support only : these entry points are deprecated.
+ * - Presumes input is correctly formed (no defense vs malformed inputs)
+ * - Does not know input size (presume input buffer is "large enough")
+ * - Decompress a full block (only)
+ * @return : nb of bytes read from input.
+ * Note : this variant is not optimized for speed, just for maintenance.
+ *        the goal is to remove support of decompress_fast*() variants by v2.0
+**/
+FORCE_INLINE int LZ4_decompress_unsafe_generic(
+	const BYTE *const istart, BYTE *const ostart, int decompressedSize,
+	size_t prefixSize,
+	const BYTE *const dictStart, /* only if dict==usingExtDict */
+	const size_t dictSize /* note: =0 if dictStart==NULL */
+)
+{
+	const BYTE *ip = istart;
+	BYTE *op = (BYTE *)ostart;
+	BYTE *const oend = ostart + decompressedSize;
+	const BYTE *const prefixStart = ostart - prefixSize;
+
+	DEBUGLOG(5, "LZ4_decompress_unsafe_generic");
+	if (dictStart == NULL)
+		assert(dictSize == 0);
+
+	while (1) {
+		/* start new sequence */
+		unsigned token = *ip++;
+
+		/* literals */
+		{
+			size_t ll = token >> ML_BITS;
+			if (ll == 15) {
+				/* long literal length */
+				ll += read_long_length_no_check(&ip);
+			}
+			if ((size_t)(oend - op) < ll)
+				return -1; /* output buffer overflow */
+			LZ4_memmove(op, ip,
+				    ll); /* support in-place decompression */
+			op += ll;
+			ip += ll;
+			if ((size_t)(oend - op) < MFLIMIT) {
+				if (op == oend)
+					break; /* end of block */
+				DEBUGLOG(
+					5,
+					"invalid: literals end at distance %zi from end of block",
+					oend - op);
+				/* incorrect end of block :
+                 * last match must start at least MFLIMIT==12 bytes before end of output block */
+				return -1;
+			}
+		}
+
+		/* match */
+		{
+			size_t ml = token & 15;
+			size_t const offset = LZ4_readLE16(ip);
+			ip += 2;
+
+			if (ml == 15) {
+				/* long literal length */
+				ml += read_long_length_no_check(&ip);
+			}
+			ml += MINMATCH;
+
+			if ((size_t)(oend - op) < ml)
+				return -1; /* output buffer overflow */
+
+			{
+				const BYTE *match = op - offset;
+
+				/* out of range */
+				if (offset >
+				    (size_t)(op - prefixStart) + dictSize) {
+					DEBUGLOG(6, "offset out of range");
+					return -1;
+				}
+
+				/* check special case : extDict */
+				if (offset > (size_t)(op - prefixStart)) {
+					/* extDict scenario */
+					const BYTE *const dictEnd =
+						dictStart + dictSize;
+					const BYTE *extMatch =
+						dictEnd -
+						(offset -
+						 (size_t)(op - prefixStart));
+					size_t const extml =
+						(size_t)(dictEnd - extMatch);
+					if (extml > ml) {
+						/* match entirely within extDict */
+						LZ4_memmove(op, extMatch, ml);
+						op += ml;
+						ml = 0;
+					} else {
+						/* match split between extDict & prefix */
+						LZ4_memmove(op, extMatch,
+							    extml);
+						op += extml;
+						ml -= extml;
+					}
+					match = prefixStart;
+				}
+
+				/* match copy - slow variant, supporting overlap copy */
+				{
+					size_t u;
+					for (u = 0; u < ml; u++) {
+						op[u] = match[u];
+					}
+				}
+			}
+			op += ml;
+			if ((size_t)(oend - op) < LASTLITERALS) {
+				DEBUGLOG(
+					5,
+					"invalid: match ends at distance %zi from end of block",
+					oend - op);
+				/* incorrect end of block :
+                 * last match must stop at least LASTLITERALS==5 bytes before end of output block */
+				return -1;
+			}
+		} /* match */
+	} /* main loop */
+	return (int)(ip - istart);
+}
+
 /* Read the variable-length literal or match length.
  *
  * ip - pointer to use as input.
@@ -810,15 +957,15 @@ int LZ4_decompress_safe_partial(const char *source, char *dest,
         targetOutputSize = maxDecompressedSize;
     
     return LZ4_decompress_generic(source, dest, compressedSize, targetOutputSize,
-                                 endOnOutputSize, partial_decode,
-                                 noDict, (BYTE *)dest, NULL, 0, 0);
+                              endOnOutputSize, partial_decode,
+                              noDict, (BYTE *)dest, NULL, 0);
 }
 
 int LZ4_decompress_fast(const char *source, char *dest, int originalSize)
 {
     return LZ4_decompress_generic(source, dest, 0, originalSize,
                                 endOnOutputSize, decode_full_block,
-                                withPrefix64k, (BYTE *)dest - 64 KB, NULL, 0, 0);
+                                withPrefix64k, (BYTE *)dest - (64 * KB), NULL, 0, 0);
 }
 
 /* ===== Instantiate a few more decoding cases, used more than once. ===== */
