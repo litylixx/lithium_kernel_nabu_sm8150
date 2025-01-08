@@ -725,7 +725,7 @@ endif
 ifdef CONFIG_LLVM_POLLY
 KBUILD_CFLAGS	+= -mllvm -polly \
             -mllvm -polly-parallel \
-            -mllvm -polly-vectorizer
+            -mllvm -polly-vectorizer=stripmine
 endif
 
 # Tell gcc to never replace conditional load with a non-conditional one
