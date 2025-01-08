@@ -332,8 +332,7 @@ LZ4_decompress_generic(const char *const src, char *const dst, int srcSize,
                        int outputSize, endCondition_directive endOnInput,
                        earlyEnd_directive partialDecoding,
                        dict_directive dict, const BYTE *const lowPrefix,
-                       const BYTE *const dictStart, size_t dictSize);
-
+                       const BYTE *const dictStart, size_t dictSize)
 {
 	if ((src == NULL) || (outputSize < 0)) {
 		return -1;
