@@ -40,7 +40,8 @@
 #include <linux/kernel.h>
 #include <asm/unaligned.h>
 #include "lz4armv8/lz4accel.h"
-
+#include <linux/types.h>
+#include <linux/stddef.h>
 /*-*****************************
  *	Decompression functions
  *******************************/
@@ -1129,7 +1130,16 @@ ssize_t LZ4_arm64_decompress_safe_partial(const void *source,
         }
 #endif
         /* Finish in safe */
-	return LZ4_decompress_generic(source, dest, srcPtr, dstPtr, inputSize, outputSize, partial_decode, noDict, (BYTE *)dest, NULL);
+	return LZ4_decompress_generic(source, dest, 
+    (int)(srcPtr - (const uint8_t*)source),
+    (int)(dstPtr - (uint8_t*)dest),
+    inputSize, 
+    outputSize,
+    partial_decode,
+    (dict_directive)noDict,
+    (const BYTE *)dest,
+    (size_t)0
+);
 }
 
 ssize_t LZ4_arm64_decompress_safe(const void *source,
@@ -1155,7 +1165,16 @@ ssize_t LZ4_arm64_decompress_safe(const void *source,
         }
 #endif
         /* Finish in safe */
-	return LZ4_decompress_generic(source, dest, srcPtr, dstPtr, inputSize, outputSize, decode_full_block, noDict, (BYTE *)dest, NULL);
+	return LZ4_decompress_generic(source, dest, 
+    (int)(srcPtr - (const uint8_t*)source),
+    (int)(dstPtr - (uint8_t*)dest),
+    inputSize, 
+    outputSize,
+    decode_full_block,
+    (dict_directive)noDict,
+    (const BYTE *)dest,
+    (size_t)0
+);
 }
 
 int LZ4_decompress_fast_continue(LZ4_streamDecode_t *LZ4_streamDecode,
