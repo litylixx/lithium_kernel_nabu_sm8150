@@ -38,6 +38,9 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <asm/unaligned.h>
+#ifndef LZ4_wildCopy
+#define LZ4_wildCopy LZ4_wildCopy8
+#endif
 
 static const int LZ4_minLength = (MFLIMIT + 1);
 static const int LZ4_64Klimit = ((64 * KB) + (MFLIMIT - 1));
@@ -530,7 +533,7 @@ static FORCE_INLINE int LZ4_compress_generic_validated(
 				*token = (BYTE)(litLength << ML_BITS);
 
 			/* Copy Literals */
-			LZ4_wildCopy(op, anchor, op + litLength);
+			LZ4_wildCopy8(op, anchor, op + litLength);
 			op += litLength;
 			DEBUGLOG(6, "seq.start:%i, literals=%u, match.start:%i",
 				 (int)(anchor - (const BYTE *)source),
