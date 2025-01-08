@@ -25,7 +25,6 @@
 #include <linux/spi/spi.h>
 #include <linux/uaccess.h>
 #include <linux/pm_qos.h>
-#include <linux/qos.h>
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
