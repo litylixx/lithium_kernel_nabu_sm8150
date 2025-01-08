@@ -802,38 +802,23 @@ int LZ4_decompress_safe(const char *source, char *dest, int compressedSize,
 				      NULL, 0);
 }
 
-int LZ4_decompress_safe_partial(const char *src, char *dst, int compressedSize,
-				int targetOutputSize, int dstCapacity)
+int LZ4_decompress_safe_partial(const char *source, char *dest,
+                               int compressedSize, int targetOutputSize,
+                               int maxDecompressedSize)
 {
-	dstCapacity = min(targetOutputSize, dstCapacity);
-	return LZ4_decompress_generic(src, dst, compressedSize, dstCapacity,
-				      endOnInputSize, partial_decode, noDict,
-				      (BYTE *)dst, NULL, 0);
-}
-
-int LZ4_decompress_safe_partial(const char *src, char *dst, int compressedSize,
-				int targetOutputSize, int dstCapacity)
-{
-	dstCapacity = min(targetOutputSize, dstCapacity);
-	return LZ4_decompress_generic(src, dst, compressedSize, dstCapacity,
-				      partial_decode, noDict, (BYTE *)dst, NULL,
-				      0);
-}
-
-static int LZ4_decompress_fast(const char *source, char *dest, int originalSize)
-{
-	dstCapacity = min(targetOutputSize, dstCapacity);
-	return LZ4_decompress_generic(src, dst, compressedSize, dstCapacity,
-				      endOnInputSize, partial_decode,
-				      noDict, (BYTE *)dst, NULL, 0);
+    if (targetOutputSize > maxDecompressedSize)
+        targetOutputSize = maxDecompressedSize;
+    
+    return LZ4_decompress_generic(source, dest, compressedSize, targetOutputSize,
+                                 endOnOutputSize, partial_decode,
+                                 noDict, (BYTE *)dest, NULL, 0, 0);
 }
 
 int LZ4_decompress_fast(const char *source, char *dest, int originalSize)
 {
-	return LZ4_decompress_generic(source, dest, 0, originalSize,
-				      endOnOutputSize, decode_full_block,
-				      withPrefix64k, (BYTE *)dest - 64 * KB,
-				      NULL, 0);
+    return LZ4_decompress_generic(source, dest, 0, originalSize,
+                                endOnOutputSize, decode_full_block,
+                                withPrefix64k, (BYTE *)dest - 64 KB, NULL, 0, 0);
 }
 
 /* ===== Instantiate a few more decoding cases, used more than once. ===== */
@@ -1061,6 +1046,7 @@ int LZ4_decompress_fast_usingDict(const char *source, char *dest,
 
 	return LZ4_decompress_fast_extDict(source, dest, originalSize,
 					   dictStart, dictSize);
+#define LZ4_decompress_unsafe_generic LZ4_decompress_generic
 }
 
 #ifndef STATIC
