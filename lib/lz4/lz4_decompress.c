@@ -1129,7 +1129,7 @@ ssize_t LZ4_arm64_decompress_safe_partial(const void *source,
         }
 #endif
         /* Finish in safe */
-	return __LZ4_decompress_generic(source, dest, srcPtr, dstPtr, inputSize, outputSize, partial_decode, noDict, (BYTE *)dest, NULL, 0);
+	return LZ4_decompress_generic(source, dest, srcPtr, dstPtr, inputSize, outputSize, partial_decode, noDict, (BYTE *)dest, NULL, 0);
 }
 
 ssize_t LZ4_arm64_decompress_safe(const void *source,
@@ -1155,7 +1155,7 @@ ssize_t LZ4_arm64_decompress_safe(const void *source,
         }
 #endif
         /* Finish in safe */
-	return __LZ4_decompress_generic(source, dest, srcPtr, dstPtr, inputSize, outputSize, decode_full_block, noDict, (BYTE *)dest, NULL, 0);
+	return LZ4_decompress_generic(source, dest, srcPtr, dstPtr, inputSize, outputSize, decode_full_block, noDict, (BYTE *)dest, NULL, 0);
 }
 
 int LZ4_decompress_fast_continue(LZ4_streamDecode_t *LZ4_streamDecode,
