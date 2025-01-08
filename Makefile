@@ -722,6 +722,18 @@ KBUILD_CFLAGS	+= -mcpu=cortex-a55 -mtune=cortex-a55
 endif
 endif
 
+ifdef CONFIG_LLVM_POLLY
+KBUILD_CFLAGS	+= -mllvm -polly \
+		   -mllvm -polly-parallel \
+		   -mllvm -polly-vectorizer=stripmine \		
+		   -mllvm -polly-position=early \			      
+		   -mllvm -polly-opt-fusion=max \
+		   -mllvm -polly-ast-use-context \	     
+		   -mllvm -polly-detect-pattern-matrices \   
+		   -mllvm -polly-tiling \ 
+		   -mllvm -polly-default-tile-size=32
+endif
+            
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
 KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
