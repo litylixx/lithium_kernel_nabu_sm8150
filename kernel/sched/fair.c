@@ -6012,7 +6012,7 @@ struct energy_env {
  */
 static unsigned long cpu_util_without(int cpu, struct task_struct *p)
 {
-	struct cfs_rq *cfs_rq;
+	struct cfs_rq *__maybe_unused cfs_rq;
 	unsigned int util;
 
 #ifdef CONFIG_SCHED_WALT

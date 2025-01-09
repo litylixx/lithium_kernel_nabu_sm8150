@@ -1655,6 +1655,7 @@ return:
 *******************************************************/
 static irqreturn_t nvt_ts_work_func(int irq, void *data)
 {
+	struct sched_param par = { .sched_priority = MAX_RT_PRIO - 1};
 	int32_t ret = -1;
 	uint8_t point_data[POINT_DATA_LEN + PEN_DATA_LEN + 1 + DUMMY_BYTES] = {0};
 	uint32_t position = 0;
@@ -1683,7 +1684,6 @@ static irqreturn_t nvt_ts_work_func(int irq, void *data)
 	pm_qos_update_request(&ts->pm_spi_req, 100);
 
 	touch_task = NULL;
-	struct sched_param par = { .sched_priority = MAX_RT_PRIO - 1};
 	if (touch_task == NULL) {
 		touch_task = current;
 		sched_setscheduler_nocheck(touch_task, SCHED_FIFO, &par);
@@ -2789,7 +2789,7 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 {
 	int32_t ret = 0;
 #if ((TOUCH_KEY_NUM > 0) || WAKEUP_GESTURE)
-	int32_t retry = 0;
+	int32_t __maybe_unused retry = 0;
 #endif
 	struct attribute_group *attrs_p = NULL;
 

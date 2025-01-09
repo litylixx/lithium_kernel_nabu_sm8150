@@ -1192,8 +1192,6 @@ static void __map_bio(struct dm_target_io *tio)
 	struct dm_offload o;
 	struct bio *clone = &tio->clone;
 	struct dm_target *ti = tio->ti;
-	u64 io_stime = 0;
-	u64 io_wtime = 0;
 
 	clone->bi_end_io = clone_endio;
 

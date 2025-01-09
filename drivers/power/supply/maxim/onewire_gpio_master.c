@@ -21,11 +21,7 @@
 #include <linux/list.h>
 #include <linux/device.h>
 #include <linux/spinlock.h>
-
-#define ow_info	pr_err
-#define ow_dbg	pr_err
-#define ow_err	pr_err
-#define ow_log	pr_err
+#include <linux/printk.h>
 
 #define DRV_STRENGTH_16MA		(0x7 << 6)
 #define DRV_STRENGTH_4MA		(0x1 << 6)
@@ -448,11 +444,11 @@ static int onewire_gpio_probe(struct platform_device *pdev)
 	onewire_data->ow_gpio_chip = gpiod_to_chip(onewire_data->ow_gpio_desc);
 
 	onewire_data->gpio_in_out_reg = devm_ioremap(&pdev->dev,
-					(uint32_t)onewire_data->onewire_gpio_level_addr, 0x4);
+					(uintptr_t)onewire_data->onewire_gpio_level_addr, 0x4);
 	onewire_data->gpio_cfg66_reg = devm_ioremap(&pdev->dev,
-					(uint32_t)onewire_data->onewire_gpio_cfg_addr, 0x4);
-	ow_log("onewire_gpio_level_addr is %x; onewire_gpio_cfg_addr is %x", (uint32_t)(onewire_data->onewire_gpio_level_addr), (uint32_t)(onewire_data->onewire_gpio_cfg_addr));
-	ow_log("onewire_data->gpio_cfg66_reg is %x; onewire_data->gpio_in_out_reg is %x", (uint32_t)(onewire_data->gpio_cfg66_reg), (uint32_t)(onewire_data->gpio_in_out_reg));
+					(uintptr_t)onewire_data->onewire_gpio_cfg_addr, 0x4);
+	ow_log("onewire_gpio_level_addr is %x; onewire_gpio_cfg_addr is %x", (uintptr_t)(onewire_data->onewire_gpio_level_addr), (uintptr_t)(onewire_data->onewire_gpio_cfg_addr));
+	ow_log("onewire_data->gpio_cfg66_reg is %x; onewire_data->gpio_in_out_reg is %x", (uintptr_t)(onewire_data->gpio_cfg66_reg), (uintptr_t)(onewire_data->gpio_in_out_reg));
 
 	// create device node
 	onewire_data->dev = device_create(onewire_class,
