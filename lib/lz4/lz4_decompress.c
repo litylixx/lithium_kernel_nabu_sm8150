@@ -945,8 +945,8 @@ int LZ4_decompress_safe(const char *source, char *dest, int compressedSize,
 			int maxDecompressedSize)
 {
 	return LZ4_decompress_generic(source, dest, compressedSize,
-				      maxDecompressedSize, endOnInputSize,
-				      decode_full_block, noDict, (BYTE *)dest,
+                      maxDecompressedSize, endOnInputSize,
+                      (dict_directive)decode_full_block, (dict_directive)noDict, (BYTE *)dest,
 				      NULL, 0);
 }
 
@@ -958,14 +958,14 @@ int LZ4_decompress_safe_partial(const char *source, char *dest,
         targetOutputSize = maxDecompressedSize;
     
     return LZ4_decompress_generic(source, dest, compressedSize, targetOutputSize,
-                              endOnOutputSize, partial_decode,
+                              endOnOutputSize, (dict_directive)partial_decode,
                               noDict, (BYTE *)dest, NULL, 0);
 }
 
 int LZ4_decompress_fast(const char *source, char *dest, int originalSize)
 {
     return LZ4_decompress_generic(source, dest, 0, originalSize,
-                                endOnOutputSize, decode_full_block,
+                                endOnOutputSize, (dict_directive)decode_full_block,
                                 withPrefix64k, (BYTE *)dest - (64 * KB), NULL, 0);
 }
 
@@ -976,7 +976,7 @@ int LZ4_decompress_safe_withPrefix64k(const char *source, char *dest,
 {
 	return LZ4_decompress_generic(source, dest, compressedSize,
 				      maxOutputSize, endOnInputSize,
-				      decode_full_block, withPrefix64k,
+				      (dict_directive)decode_full_block, withPrefix64k,
 				      (BYTE *)dest - (64 * KB), NULL, 0);
 }
 
@@ -987,7 +987,7 @@ static int LZ4_decompress_safe_withSmallPrefix(const char *source, char *dest,
 {
 	return LZ4_decompress_generic(source, dest, compressedSize,
 				      maxOutputSize, endOnInputSize,
-				      decode_full_block, noDict,
+				      (dict_directive)decode_full_block, noDict,
 				      (BYTE *)dest - prefixSize, NULL, 0);
 }
 
@@ -997,7 +997,7 @@ int LZ4_decompress_safe_forceExtDict(const char *source, char *dest,
 {
 	return LZ4_decompress_generic(source, dest, compressedSize,
 				      maxOutputSize, endOnInputSize,
-				      decode_full_block, usingExtDict,
+				      (dict_directive)decode_full_block, usingExtDict,
 				      (BYTE *)dest, (const BYTE *)dictStart,
 				      dictSize);
 }
@@ -1007,7 +1007,7 @@ static int LZ4_decompress_fast_extDict(const char *source, char *dest,
 				       size_t dictSize)
 {
 	return LZ4_decompress_generic(source, dest, 0, originalSize,
-				      endOnOutputSize, decode_full_block,
+				      endOnOutputSize, (dict_directive)decode_full_block,
 				      usingExtDict, (BYTE *)dest,
 				      (const BYTE *)dictStart, dictSize);
 }
@@ -1023,7 +1023,7 @@ static FORCE_INLINE int LZ4_decompress_safe_doubleDict(
 {
 	return LZ4_decompress_generic(source, dest, compressedSize,
 				      maxOutputSize, endOnInputSize,
-				      decode_full_block, usingExtDict,
+				      (dict_directive)decode_full_block, usingExtDict,
 				      (BYTE *)dest - prefixSize,
 				      (const BYTE *)dictStart, dictSize);
 }
@@ -1034,7 +1034,7 @@ LZ4_decompress_fast_doubleDict(const char *source, char *dest, int originalSize,
 			       size_t dictSize)
 {
 	return LZ4_decompress_generic(source, dest, 0, originalSize,
-				      endOnOutputSize, decode_full_block,
+				      endOnOutputSize, (dict_directive)decode_full_block,
 				      usingExtDict, (BYTE *)dest - prefixSize,
 				      (const BYTE *)dictStart, dictSize);
 }
@@ -1150,7 +1150,7 @@ ssize_t LZ4_arm64_decompress_safe_partial(const void *source,
     outputSize,
     partial_decode,
     (dict_directive)(const BYTE *)noDict
-    (const BYTE *)dest,
+    (const BYTE *)(dest),
     (size_t)0
 );
 }
@@ -1183,8 +1183,8 @@ ssize_t LZ4_arm64_decompress_safe(const void *source,
     (int)(dstPtr - (uint8_t*)dest),
     inputSize, 
     outputSize,
-    decode_full_block,
-    (dict_directive)noDict,
+    (dict_directive)decode_full_block,
+    (dict_directive)(noDict),
     (const BYTE *)dest,
     (size_t)0
 );
