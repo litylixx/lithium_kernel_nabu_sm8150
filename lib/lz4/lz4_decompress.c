@@ -1150,7 +1150,7 @@ ssize_t LZ4_arm64_decompress_safe_partial(const void *source,
     outputSize,
     partial_decode,
     (dict_directive)(const BYTE *)noDict
-    (const BYTE *)(dest),
+    dest,
     (size_t)0
 );
 }
@@ -1184,7 +1184,7 @@ ssize_t LZ4_arm64_decompress_safe(const void *source,
     inputSize, 
     outputSize,
     (dict_directive)decode_full_block,
-    (dict_directive)(noDict),
+    dict_directive,
     (const BYTE *)dest,
     (size_t)0
 );
