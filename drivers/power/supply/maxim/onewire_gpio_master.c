@@ -36,6 +36,15 @@
 #define ONE_WIRE_OUT_HIGH		writel_relaxed(OUTPUT_HIGH, g_onewire_data->gpio_in_out_reg)// OUT: 1
 #define ONE_WIRE_OUT_LOW		writel_relaxed(OUTPUT_LOW, g_onewire_data->gpio_in_out_reg)// OUT: 0
 
+#define ow_err(fmt, ...) \
+    pr_err("[onewire] %s: " fmt, __func__, ##__VA_ARGS__)
+
+#define ow_dbg(fmt, ...) \
+    pr_debug("[onewire] %s: " fmt, __func__, ##__VA_ARGS__)
+
+#define ow_log(fmt, ...) \
+    pr_info("[onewire] %s: " fmt, __func__, ##__VA_ARGS__)
+
 struct onewire_gpio_data {
 	struct platform_device *pdev;
 	struct device *dev;
