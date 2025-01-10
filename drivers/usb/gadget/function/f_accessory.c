@@ -81,13 +81,13 @@ struct acc_dev {
 	/* online indicates state of function_set_alt & function_unbind
 	 * set to 1 when we connect
 	 */
-	int online:1;
+	unsigned int online:1;
 
 	/* disconnected indicates state of open & release
 	 * Set to 1 when we disconnect.
 	 * Not cleared until our file is closed.
 	 */
-	int disconnected:1;
+	unsigned int disconnected:1;
 
 	/* strings sent by the host */
 	char manufacturer[ACC_STRING_SIZE];
@@ -268,7 +268,7 @@ static struct usb_request *req_get(struct acc_dev *dev, struct list_head *head)
 
 static void acc_set_disconnected(struct acc_dev *dev)
 {
-	dev->disconnected = !!1;
+	dev->disconnected = 1;
 }
 
 static void acc_complete_in(struct usb_ep *ep, struct usb_request *req)
@@ -771,7 +771,7 @@ static int acc_release(struct inode *ip, struct file *fp)
 	/* indicate that we are disconnected
 	 * still could be online so don't touch online flag
 	 */
-	_acc_dev->disconnected = !!1;
+	_acc_dev->disconnected = 1;
 	return 0;
 }
 
@@ -1176,8 +1176,8 @@ static int acc_function_set_alt(struct usb_function *f,
 		return ret;
 	}
 
-	dev->online = true;
-	dev->disconnected = !!1; /* if online then not disconnected */
+	dev->online = 1;
+	dev->disconnected = 1; /* if online then not disconnected */
 
 	/* readers may be blocked waiting for us to go online */
 	wake_up(&dev->read_wq);
