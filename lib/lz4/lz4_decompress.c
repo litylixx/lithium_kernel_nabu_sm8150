@@ -1143,14 +1143,14 @@ ssize_t LZ4_arm64_decompress_safe_partial(const void *source,
         }
 #endif
         /* Finish in safe */
-	return LZ4_decompress_generic(source, dest, 
+    return LZ4_decompress_generic(source, dest,
     (int)(srcPtr - (const uint8_t*)source),
     (int)(dstPtr - (uint8_t*)dest),
-    inputSize, 
+    inputSize,
     outputSize,
     partial_decode,
-    (dict_directive)(const BYTE *)noDict
-    dest,
+    (dict_directive)(const BYTE *)noDict,
+    (const BYTE *)dest,
     (size_t)0
 );
 }
