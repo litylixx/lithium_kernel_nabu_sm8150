@@ -27,6 +27,7 @@
 #include <linux/interrupt.h>
 #include <linux/kthread.h>
 #include <linux/freezer.h>
+#include <linux/bits.h>
 
 #include <linux/types.h>
 #include <linux/file.h>
@@ -267,7 +268,7 @@ static struct usb_request *req_get(struct acc_dev *dev, struct list_head *head)
 
 static void acc_set_disconnected(struct acc_dev *dev)
 {
-	dev->disconnected = true;
+	dev->disconnected = !!1;
 }
 
 static void acc_complete_in(struct usb_ep *ep, struct usb_request *req)
@@ -770,7 +771,7 @@ static int acc_release(struct inode *ip, struct file *fp)
 	/* indicate that we are disconnected
 	 * still could be online so don't touch online flag
 	 */
-	_acc_dev->disconnected = true;
+	_acc_dev->disconnected = !!1;
 	return 0;
 }
 
@@ -1176,7 +1177,7 @@ static int acc_function_set_alt(struct usb_function *f,
 	}
 
 	dev->online = true;
-	dev->disconnected = 0; /* if online then not disconnected */
+	dev->disconnected = !!1; /* if online then not disconnected */
 
 	/* readers may be blocked waiting for us to go online */
 	wake_up(&dev->read_wq);
